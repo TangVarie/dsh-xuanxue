@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "玄学台",
+    "description": "在左侧导航新增「玄学」整页工作台，把四个内置技能（八字 bazi-core、六爻 liuyao-core、紫微 ziwei-core、吠陀 vedic v5.3 含 Prashna 卜卦）与配套的实践层技能 xuanxue-orchestra 串成一条工作流。算命与卜卦分两轴：算命走八字/紫微/吠陀本命盘，卜卦走六爻（用户摇卦）或吠陀 Prashna 提问盘（提问时刻＋地点，不需生辰）。①提问台：只陈述问题，你先把问题分诊（命还是卜）、选最少充分集、独立跑各门、做交叉拟合（共同支持/单门支持/冲突与分辨/信息缺口），再给结论或一起讨论；也可指定单一法门并做参数卡校验。②命例档案：读 xuanxue-cases/index.json 与各案 case.json，显示结论、证据、置信与验证状态、交叉拟合、应期与下次检查日，可一键追问或复盘应验。③运行态：读 xuanxue-skills/health.json 展示四门脚本与解释器状态并可一键体检。会话以「玄学」代理预设启动，技能随插件内置在 skills/ 下。",
+    "detail": "docs/DETAIL.zh.md"
+  }
+}

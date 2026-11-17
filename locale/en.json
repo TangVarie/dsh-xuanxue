@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Metaphysics studio",
+    "description": "Adds a 玄学 (Metaphysics) page to the left sidebar that turns the four bundled skills (Bazi, Liuyao, Ziwei, Vedic v5.3 with its Prashna module) plus the practice-layer skill xuanxue-orchestra into one workflow. Fate reading and divination are two axes: fate reads a natal chart (Bazi, Ziwei, Vedic), divination casts for one question (Liuyao with the user's own toss, or a Vedic prashna chart from the question moment and place, no birth data). Ask states the question only; the agent triages it, picks a minimal sufficient set, runs each system independently, cross-fits them (shared support, single-system support, conflicts with resolution conditions, gaps) and then reports or discusses. A single system can also be pinned with a validated parameter card. The case archive reads xuanxue-cases/index.json and each case.json to show conclusions, evidence, confidence and verification state, the cross-fit block, timing and the next review date, with one-click follow-up and outcome review. Runtime reads xuanxue-skills/health.json to show the calculators' status and start a health check. Sessions start under the Xuanxue agent preset; the skills ship inside the plugin under skills/.",
+    "detail": "docs/DETAIL.md"
+  }
+}

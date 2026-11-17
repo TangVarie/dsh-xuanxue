@@ -1,0 +1,4 @@
+# bazi-core 排盘脚本依赖。已用 scripts/selftest.py 验证的版本；升级前后都跑一遍 selftest。
+# 安装：pip install -r scripts/requirements.txt   （系统 Python 需加 --break-system-packages，或用独立 venv）
+# 受支持环境：Python 3.9+（时区名换算需要系统时区库，zoneinfo 可用；没有时区库时只能用 +8 这类固定偏移）
+lunar_python==1.4.4

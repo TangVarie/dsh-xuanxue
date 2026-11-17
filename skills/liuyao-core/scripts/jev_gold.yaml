@@ -1,0 +1,316 @@
+# ════════════════════════════════════════════════════════════════════
+# Jev 来意预判 · 金标准例  jg-v0.3
+# ════════════════════════════════════════════════════════════════════
+# 每条的期望答案都取自本 skill 自己的 references（source 标了出处），按默认门派
+# （主流六亲取用 + 曲炜对应点）。只标能从资料里确定的字段，拿不准的不标。
+#   yongshen            可接受的主用神；列了多个的是资料里本来就"兼看"的
+#   yongshen_ambiguous  true = 期望 Jev 标歧义（或选"说不清"），而不是硬选一个
+#   ambiguous_items     期望被标歧义的其他题（如 wenfa_type）
+# 字段名：jg-v0.3 起来意写在「来意摘要」（与 jev_judge.py 一致，不含卦盘）；补 wenfa_type 期望与 3 条新例。
+# 跑法：python scripts/jev_eval.py [--lang both] [--mock]
+# ════════════════════════════════════════════════════════════════════
+
+gold_version: jg-v0.3
+
+cases:
+
+  # ── 按事取用：资料里有明确规则的 ─────────────────────────────────
+
+  - id: g01
+    来意摘要: 下个月想开一家奶茶店，这笔投资能不能赚到钱？
+    求测者性别: 男
+    expect:
+      wenfa_type: 能否成
+      matter_category: 求财
+      motive: 想成
+      asker_role: 本人
+      yongshen: [妻财]
+    source: 02 一「求财→妻财」；10 一
+
+  - id: g02
+    来意摘要: 我最近总是胸闷气短，想看看自己这个病严不严重。
+    求测者性别: 女
+    expect:
+      matter_category: 疾病
+      asker_role: 本人
+      yongshen: [世爻]
+    source: 02 一 速查表「自测病→世爻」；10 四②
+
+  - id: g03
+    来意摘要: 我爸住院了，想问问他这次的病能不能好。
+    求测者性别: 男
+    expect:
+      matter_category: 疾病
+      asker_role: 替他人问
+      yongshen: [父母]
+    source: 02 一 速查表「测父母病：父母为用」；10 四①
+
+  - id: g04
+    来意摘要: 朋友查出一个肿块，在等病理结果，帮他问问严不严重。
+    求测者性别: 男
+    expect:
+      matter_category: 疾病
+      asker_role: 替他人问
+      yongshen: [官鬼]
+    source: 02 一「疾病（他人）→官鬼」；10 四③
+
+  - id: g05
+    来意摘要: 我喜欢的那个女生，会不会答应做我女朋友？
+    求测者性别: 男
+    expect:
+      wenfa_type: 能否成
+      matter_category: 婚恋
+      motive: 想成
+      asker_role: 我和他人之间
+      yongshen: [应爻, 妻财]
+    source: 10 二「未婚以世应为主，男兼看妻财」
+
+  - id: g06
+    来意摘要: 我和前男友还有没有可能复合？
+    求测者性别: 女
+    expect:
+      wenfa_type: 能否成
+      matter_category: 婚恋
+      motive: 想成
+      asker_role: 我和他人之间
+      yongshen: [应爻, 官鬼]
+    source: 10 二「未婚以世应为主，女兼看官鬼」
+
+  - id: g07
+    来意摘要: 结婚五年了，想看看老公最近是不是在外面有人。
+    求测者性别: 女
+    expect:
+      matter_category: 婚恋
+      motive: 已发生问结果
+      yongshen: [官鬼]
+    source: 10 二「已婚以世 + 男财女官为用」
+
+  - id: g08
+    来意摘要: 新公司那边的 offer，我能不能拿到？
+    求测者性别: 男
+    expect:
+      wenfa_type: 能否成
+      matter_category: 事业
+      motive: 想成
+      asker_role: 本人
+      yongshen: [官鬼]
+    source: 10 三「官鬼为用（职位 / 官方）」
+
+  - id: g09
+    来意摘要: 明天公司开会，会不会通知我下岗？
+    expect:
+      matter_category: 事业
+      motive: 怕生变
+      asker_role: 本人
+      yongshen: [官鬼]
+    source: 13 例19「下岗看官鬼」；10 三
+
+  - id: g10
+    来意摘要: 今年考研能不能上岸？
+    expect:
+      wenfa_type: 能否成
+      matter_category: 学业
+      motive: 想成
+      yongshen: [父母, 官鬼]
+    source: 10 八「父母（文星 / 成绩）+ 官鬼（功名）」
+
+  - id: g11
+    来意摘要: 我的钱包丢了，还能找回来吗？
+    expect:
+      wenfa_type: 能否成
+      matter_category: 失物
+      asker_role: 本人
+      yongshen: [妻财]
+    source: 10 六「贵重物以财为主」
+
+  - id: g12
+    来意摘要: 家里被偷了，想知道小偷能不能抓到。
+    expect:
+      matter_category: 失物
+      yongshen: [官鬼]
+    source: 10 六「测盗取官鬼」
+
+  - id: g13
+    来意摘要: 我弟弟出去打工，一个多月没消息了，他什么时候能回来？
+    expect:
+      involves_decision: false
+      wenfa_type: 只问时间
+      matter_category: 行人
+      asker_role: 替他人问
+      yongshen: [兄弟]
+    source: 10 七「代表该人之六亲」
+
+  - id: g14
+    来意摘要: 明天开车去苏州出差，路上顺不顺利？
+    expect:
+      matter_category: 出行
+      asker_role: 本人
+      yongshen: [世爻]
+    source: 10 七「出行避灾：忌官鬼持世克世」→ 以世为主
+
+  - id: g15
+    来意摘要: 这个周六会不会下雨？我们要办户外活动。
+    expect:
+      matter_category: 天气
+      yongshen: [父母, 子孙]
+    source: 10 九「子孙/妻财＝晴、父母＝阴雨」——盼晴天办活动，晴雨两边的用神都要看（jg-v0.2 改：原来只收父母）
+
+  - id: g16
+    来意摘要: 我们家现在住的这套房子，住着好不好？
+    expect:
+      matter_category: 家宅
+      yongshen: [父母]
+    source: 10 十「父母爻＝具体建筑」
+
+  - id: g17
+    来意摘要: 帮我看看明年一整年的运势。
+    expect:
+      matter_category: 流年
+      asker_role: 本人
+      yongshen: [世爻]
+    source: 10 十一「流年以世爻为主」
+
+  - id: g18
+    来意摘要: 刚签的这份合同，后面会不会出问题？
+    expect:
+      wenfa_type: 走向好坏
+      motive: 怕生变
+      yongshen: [父母]
+    source: 02 一「合同→父母」
+
+  # ── 用神转换：同一样东西，角度不同，用神不同（02 二）──────────────
+
+  - id: g19
+    来意摘要: 我是做雨伞批发的，想问问今年这批伞好不好卖。
+    expect:
+      matter_category: 求财
+      yongshen: [子孙]
+    source: 02 二「雨伞——经销商测营销取子孙（财源）」
+
+  - id: g20
+    来意摘要: 店里客人寄存的一把伞丢了，还能找回来吗？
+    expect:
+      matter_category: 失物
+      yongshen: [妻财]
+    source: 02 二「店里伞丢失取妻财（财物）」
+
+  - id: g21
+    来意摘要: 我新买的这把伞质量怎么样，防雨到底行不行？
+    expect:
+      yongshen: [父母]
+    source: 02 二「顾客测伞质量取父母（防雨功能）」
+
+  - id: g22
+    来意摘要: 我在找工作，家里快揭不开锅了，只要有份收入能糊口就行。
+    expect:
+      matter_category: 事业
+      asker_role: 本人
+      yongshen: [生世之爻]
+    source: 02 二「为糊口取生世之爻」
+
+  - id: g23
+    来意摘要: 我在找工作，想进大平台，图的是以后的前途和位置。
+    expect:
+      matter_category: 事业
+      asker_role: 本人
+      yongshen: [官鬼]
+    source: 02 二「为名利前途取官爻」
+
+  - id: g24
+    来意摘要: 想买一头牛，这头牛到底好不好？
+    expect:
+      yongshen: [子孙]
+    source: 02 二「买牛测优劣取子孙」
+
+  - id: g25
+    来意摘要: 家里养的牛什么时候能卖出去？
+    expect:
+      wenfa_type: 只问时间
+      motive: 只问时间
+      yongshen: [妻财]
+    source: 02 二「卖牛测何时卖取财」
+
+  # ── 真念分型（19 三）─────────────────────────────────────────────
+
+  - id: g26
+    来意摘要: 我的任命书什么时候能下来？
+    expect:
+      wenfa_type: 只问时间
+      matter_category: 事业
+      motive: 只问时间
+      yongshen: [官鬼]
+    source: 19 三 真念①「只想要个确定日期」；13 例22
+
+  - id: g27
+    来意摘要: 我问任命书什么时候下来，其实最担心的是到底能不能被任命。
+    expect:
+      wenfa_type: 能否成
+      matter_category: 事业
+      motive: 想成
+      yongshen: [官鬼]
+    source: 19 三 真念②「明问选期、实问能否得官」
+
+  - id: g28
+    来意摘要: 这个位子基本已经定是我的了，就是怕中间有人使绊子。
+    expect:
+      matter_category: 事业
+      motive: 怕生变
+      yongshen: [官鬼]
+    source: 19 三 真念④「已许诺、怕生变」
+
+  # ── 应该标歧义 / 应该追问的 ───────────────────────────────────────
+
+  - id: g29
+    来意摘要: 找工作的事。
+    expect:
+      matter_category: 事业
+      intent_clear: false
+      yongshen_ambiguous: true
+    source: 02 二「同一找工作，为糊口取生世之爻、为名利前途取官爻」——不问动机取不了
+
+  - id: g30
+    来意摘要: 跟我合伙做生意的那个朋友，靠不靠谱？
+    expect:
+      yongshen_ambiguous: true
+    source: 02 一「合伙→兄弟」对 10 十三「测对方真假看应」——要问清关心的是合伙这件事还是这个人
+
+  - id: g31
+    来意摘要: 帮我看看最近的事。
+    expect:
+      intent_clear: false
+      yongshen_ambiguous: true
+    source: 00 〇.1「来意要问清，不靠卦去猜」
+
+  - id: g32
+    来意摘要: 我想问今年能不能升职，还有我妈的身体怎么样，顺便看看财运。
+    expect:
+      single_matter: false
+    source: 00 〇.2「一念一事，不可兼断与此事无关之事」
+
+  # ── 问法类型（jg-v0.3 新增）──────────────────────────────────────
+
+  - id: g33
+    来意摘要: 和前男友分手半年，他最近来找我想复合。想知道如果复合了，是会比以前好，还是老问题再来一遍。
+    求测者性别: 女
+    expect:
+      matter_category: 婚恋
+      wenfa_type: 走向好坏
+      asker_role: 我和他人之间
+    source: 00 0.3「走向好坏：成了之后是变好还是重演」；00 十三.1
+
+  - id: g34
+    来意摘要: 手上两个 offer，一个国企一个创业公司，该选哪一个？
+    expect:
+      matter_category: 事业
+      wenfa_type: 该不该
+      asker_role: 本人
+      involves_decision: true
+    source: 00 0.3「该不该：要我拍板」；20 二 involves_decision
+
+  - id: g35
+    来意摘要: 要不要复合？
+    expect:
+      matter_category: 婚恋
+      ambiguous_items: [wenfa_type]
+    source: 00 0.3「"要不要复合"可指能否、走向或该不该，默认问一句」
+

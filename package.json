@@ -1,0 +1,59 @@
+{
+  "name": "dsh-xuanxue",
+  "version": "1.0.0",
+  "description": "玄学台：八字、六爻、紫微、吠陀四门一体的玄学工作台与智能体预设",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./skills/*": "./skills/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "presets",
+    "locale/*.json",
+    "docs",
+    "icon.svg",
+    "skills",
+    "scripts",
+    "index.json",
+    "lib.mjs",
+    "release.mjs",
+    "README.md",
+    "THIRD-PARTY-NOTICES.md"
+  ],
+  "license": "UNLICENSED",
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TangVarie/dsh-xuanxue"
+  },
+  "scripts": {
+    "test": "node --check client.js && node test/index.test.mjs && node test/skills.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": [
+        "./cordis.patch.yml",
+        "./presets/xuanxue.patch.yml"
+      ]
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  }
+}

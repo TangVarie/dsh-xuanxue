@@ -1,0 +1,15 @@
+# rectifier 模块依赖 = calculator 模块的环境（不单独安装，也不再需要 ephem）
+#
+# scripts/time_scan.py：
+#   - Lagna/D9/D10/Moon Nakshatra：pysweph（swisseph），True Chitra，与 calculator engine 同口径
+#   - 每个候选时刻的 Vimsottari MD/AD/PD：直接调用 calculator/scripts/dasha_pyjhora.py（PyJHora）
+#   - 时区：pytz（calculator 已装）；没有 pytz 时退回 Python 3.9+ 标准库 zoneinfo
+#
+# 安装：不要直接 pip install（PyJHora 未声明运行时依赖、且缺星历文件），运行
+#   python <vedic skill>/calculator/scripts/setup_env.py --target <工作目录>/vedic-calc-env   # venv 建在工作目录（skill 目录通常只读）
+#   python <vedic skill>/calculator/scripts/check_env.py      # 自检，报告可用的 python
+# 运行：
+#   Linux/Mac: <工作目录>/vedic-calc-env/bin/python <vedic skill>/rectifier/scripts/time_scan.py ...
+#   Windows  : <工作目录>\vedic-calc-env\Scripts\python.exe <vedic skill>\rectifier\scripts\time_scan.py ...
+#
+# 依赖清单本身见 ../calculator/requirements.txt（pysweph>=2.10.3.5, PyJHora==4.8.6, pytz>=2024.1）。

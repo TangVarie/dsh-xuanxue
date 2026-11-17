@@ -1,0 +1,290 @@
+# ════════════════════════════════════════════════════════════════════
+# 21 · Jev 判断题（乙类 · 来意预判）  jq-v0.2
+# ════════════════════════════════════════════════════════════════════
+# 用途：问清来意之后、看盘之前，把"来意摘要"交给 Jev，一次并行答完下面的闭集题，
+#       每题带概率。分布很平的题标"歧义"，按 on_ambiguous 处理（多半是回去追问）。
+# 纪律（见 20_技法分诊表 第〇节、00 第 0.6 节）：
+#   · 只看来意，不看卦盘。先由模型写来意摘要（不含卦名、爻象、干支），再传给脚本；
+#     scripts/jev_judge.py 只接受四个字段，其余一律拒收，含卦盘字样的文本也拒收。
+#   · Jev 只做预判，取用仍由模型按九步第 2 步定；但主用神在装卦前登记。
+#   · 选项定义按本 skill 的默认门派（主流六亲取用 + 曲炜对应点）写，
+#     出处见 02_取用神与对应点、10_专题断法、19_卜筮正术。
+# 字段：
+#   instructions.zh / .en   题干（--lang en 时用英文，便于对比 Jev 对中文的表现）
+#   options[].label         选项名（Jev 返回的就是它）
+#   options[].zh / .en      选项定义
+#   criteria."true"/"false"  是非题两端的定义（键名必须加引号，否则 YAML 会把它读成布尔值）
+#   feeds                   答案喂给哪一步
+#   on_ambiguous            标了歧义时怎么办
+#   on_false                是非题明确答"否"时要做的事（可选）
+#   unclear_labels          选中即视为歧义的选项（如"说不清"）
+# 改题：题干或选项定义一改，bank_version 升一号，并重跑 python scripts/jev_eval.py --lang both。
+# jq-v0.2（2026-10）：补 wenfa_type（问法类型），与 00 第 0.3 节四种问法同步；
+#                    involves_decision 的 feeds 改指 22 二.5（建议按需给）。
+# ════════════════════════════════════════════════════════════════════
+
+bank_version: jq-v0.2
+model: jev-1.13.0
+
+# 歧义阈值（暂定，跑完金标准例再调）
+ambiguity:
+  choice_top_min: 0.60      # 第一名概率低于它 → 歧义
+  choice_margin_min: 0.20   # 第一名减第二名低于它 → 歧义
+  noul_band:                # 是非题概率落在这个区间 → 歧义
+    - 0.35
+    - 0.65
+
+questions:
+
+  - id: matter_category
+    type: choice
+    instructions:
+      zh: 求测者问的是哪一类事？只选最主要的一类。
+      en: Which kind of matter is the asker asking about? Pick the single main one.
+    options:
+      - label: 求财
+        zh: 赚钱、生意、投资、收入、借贷讨债等钱财之事
+        en: "Money: making money, business, investment, income, loans or debts"
+      - label: 婚恋
+        zh: 恋爱、婚姻、复合、对象的心意、外遇
+        en: "Love and marriage: dating, marriage, getting back together, a partner's feelings, affairs"
+      - label: 事业
+        zh: 求职、工作、职位、升迁、调动、下岗、任命
+        en: "Career: job seeking, position, promotion, transfer, layoff, appointment"
+      - label: 疾病
+        zh: 自己或他人的疾病、病情、治疗、手术
+        en: "Illness: the asker's or another person's illness, treatment, surgery"
+      - label: 官司
+        zh: 诉讼、纠纷、仲裁、官非
+        en: "Lawsuit: litigation, disputes, arbitration, legal trouble"
+      - label: 失物
+        zh: 丢失的东西、被偷、被抢
+        en: "Lost or stolen things"
+      - label: 行人
+        zh: 在外的人何时回来、失联的人在哪、是否平安
+        en: "A person who is away or missing: whereabouts, return, safety"
+      - label: 出行
+        zh: 求测者自己出门、出差、旅行是否顺利平安
+        en: "The asker's own trip: whether it goes smoothly and safely"
+      - label: 学业
+        zh: 考试、升学、成绩、求名
+        en: "Study: exams, admission, grades"
+      - label: 天气
+        zh: 晴、雨、风、雷
+        en: "Weather: sun, rain, wind, thunder"
+      - label: 家宅
+        zh: 房屋、住宅、风水、搬家
+        en: "Home: house, residence, fengshui, moving"
+      - label: 流年
+        zh: 一段时间的整体运势（今年、明年、一生）
+        en: "Overall fortune for a period (this year, next year, a lifetime)"
+      - label: 比赛选举
+        zh: 比赛、竞选、胜负
+        en: "Competitions and elections: who wins"
+      - label: 其他
+        zh: 以上都不是
+        en: None of the above
+    unclear_labels: []
+    feeds: 选 10_专题断法 的对应节；疾病类给五运六气镜、四土警示开资格
+    on_ambiguous: 追问"具体测什么事"
+
+  - id: wenfa_type
+    type: choice
+    instructions:
+      zh: 求测者是哪一种问法？同一件事，问"能不能成"和问"成了以后怎样"取用不同，只选最贴近原话的一种。
+      en: "Which way of asking is this? For the same matter, asking 'will it happen' and 'how will it go once it happens' are read differently; pick the one closest to the asker's words."
+    options:
+      - label: 能否成
+        zh: 问这件事能不能办成、能不能得到、会不会发生
+        en: Asks whether it will succeed, be obtained, or happen at all
+      - label: 走向好坏
+        zh: 问事情成了以后会变好还是重演老问题、能不能长久、后续怎么发展
+        en: Asks how things will go once it happens — whether it improves or repeats old problems, whether it lasts
+      - label: 该不该
+        zh: 要求替他拍板：该不该做、选哪个、要不要去
+        en: "Asks for a decision: whether to do it, which to choose, whether to go"
+      - label: 只问时间
+        zh: 主要问什么时候，不太在乎成败
+        en: Mainly asks when, not whether
+      - label: 说不清
+        zh: 从这些话里看不出是哪种问法
+        en: Cannot tell which way of asking this is
+    unclear_labels:
+      - 说不清
+    feeds: 第 0 步登记问法类型；取用与喜忌（00 第 0.3 节）；是否给建议（22 二.5）
+    on_ambiguous: 追问一句：是想知道能不能成，还是成了之后怎样，还是要拿主意
+
+  - id: single_matter
+    type: noul
+    instructions:
+      zh: 这段来意只问了一件事。
+      en: The asker is asking about only one matter.
+    criteria:
+      "true":
+        zh: 只有一件事，或同一件事的几个方面
+        en: One matter only, or several aspects of the same matter
+      "false":
+        zh: 混了几件互不相关的事
+        en: Several unrelated matters mixed together
+    feeds: 一事一断（00 第 0.4 节、11 R15）
+    on_ambiguous: 向求测者确认是不是一件事
+    on_false: 请求测者把几件事拆开，一事一卦
+
+  - id: motive
+    type: choice
+    instructions:
+      zh: 求测者问这件事的动机是哪一种？
+      en: What is the asker's motive for asking about this matter?
+    options:
+      - label: 想成
+        zh: 希望某件事办成、得到某个结果，问能不能成
+        en: Wants something to happen and asks whether it will succeed
+      - label: 怕生变
+        zh: 事情已经有了或基本定了，担心生变、失去或出事
+        en: Already has it or it is nearly settled, and worries it may change, be lost or go wrong
+      - label: 已发生问结果
+        zh: 事情已经发生或已经做完，想知道结果或真相
+        en: It has already happened or been done; wants to know the outcome or the truth
+      - label: 只问时间
+        zh: 不太在乎成败，主要想知道什么时候
+        en: Mainly wants to know when, not whether
+      - label: 说不清
+        zh: 从这些话里看不出动机
+        en: The motive cannot be told from what was said
+    unclear_labels:
+      - 说不清
+    feeds: 取用与喜忌（02 用神转换；19 真念分型）
+    on_ambiguous: 追问动机：是想办成、怕生变，还是已经发生想知道结果
+
+  - id: asker_role
+    type: choice
+    instructions:
+      zh: 这件事是谁的事？
+      en: Whose matter is this?
+    options:
+      - label: 本人
+        zh: 求测者自己的事
+        en: The asker's own matter
+      - label: 替他人问
+        zh: 别人的事（家人、朋友等），求测者代为来问
+        en: Someone else's matter (family, friend, etc.) asked on their behalf
+      - label: 我和他人之间
+        zh: 求测者和某个具体的人之间的关系或往来
+        en: The relationship or dealings between the asker and a specific person
+      - label: 说不清
+        zh: 看不出是谁的事
+        en: Cannot tell whose matter it is
+    unclear_labels:
+      - 说不清
+    feeds: 世爻代谁（张德：代测世为他人）；张德"卦宫为我"层是否开
+    on_ambiguous: 追问是谁的事
+
+  - id: yongshen_main
+    type: choice
+    instructions:
+      zh: 按六爻主流取用法，这件事的主用神是哪一个？看求测者真正关心的那一面来取——同一件事，关心的角度不同，用神就不同；不按物品的五行或属相取。
+      en: "Following mainstream Liu Yao practice, which is the main 'use god' (yongshen) for this matter? Choose by the aspect the asker actually cares about — the same matter takes a different yongshen depending on the angle — and never by an item's element or zodiac animal."
+    options:
+      - label: 妻财
+        zh: 最关心钱财、利润、收入、货物，或丢失、买卖的那件东西本身；男问妻子、女友或婚恋对象时兼看妻财
+        en: "Wealth: money, profit, income, goods, or the very item lost or traded; also for a man asking about his wife or girlfriend"
+      - label: 官鬼
+        zh: 最关心工作职位、升迁、名誉功名、官方机构、官司、他人的疾病或灾祸、盗贼；女问丈夫、男友或婚恋对象时兼看官鬼
+        en: "Officer: job position, promotion, reputation, official bodies, lawsuits, another person's illness or disaster, thieves; also for a woman asking about her husband or boyfriend"
+      - label: 父母
+        zh: 最关心文书、合同、证件、考试成绩、房屋车辆、长辈（父母、师长），或物品的功能质量（如伞防不防雨）
+        en: "Parent: documents, contracts, certificates, exam results, houses and vehicles, elders (parents, teachers), or an item's function and quality"
+      - label: 子孙
+        zh: 最关心子女晚辈、医药治疗、平安解忧、顾客与财源（生意的销路）、宠物六畜、晴天
+        en: "Offspring: children, medicine and treatment, peace of mind, customers and sources of income (sales), pets and livestock, sunny weather"
+      - label: 兄弟
+        zh: 最关心兄弟姐妹、同辈朋友、竞争对手、合伙之事、破财劫财
+        en: "Sibling: brothers and sisters, peers and friends, competitors, partnerships, money being taken or lost"
+      - label: 世爻
+        zh: 最关心求测者自己的整体状态或走势：自己的病、自己的吉凶、自己一段时间的运势、自己的去留调动、自己出行平安
+        en: "Self line: the asker's own overall state or trend — own illness, own fortune, own luck over a period, own transfer, own travel safety"
+      - label: 应爻
+        zh: 最关心对方这个人本身：对方的态度、心意、诚意真假；未婚感情里的对方；官司的对方
+        en: "Other line: the other person themself — their attitude, feelings, sincerity; the partner in an unmarried relationship; the opponent in a lawsuit"
+      - label: 生世之爻
+        zh: 只求谋生糊口、有份收入维持生活的求职或营生（为糊口取生扶世爻者，不取官鬼）
+        en: "Line that supports the self: job seeking or work purely to make a living, just to have some income (not career or status)"
+      - label: 说不清
+        zh: 来意没说清最关心哪一面，据此定不了用神
+        en: The request does not make clear which aspect matters most, so no yongshen can be chosen
+    unclear_labels:
+      - 说不清
+    feeds: 九步第 2 步主流取用；装卦前登记主用神与备选
+    on_ambiguous: 按 00 第 0.2 节追问来意（例："最关心的是……还是……？"）；追问不到就把前两名各断一遍，结论一致才坐实
+
+  - id: intent_clear
+    type: noul
+    instructions:
+      zh: 来意已经说清楚求测者真正关心的是哪一面，足以据此取用神。
+      en: The request makes clear which aspect the asker really cares about, enough to choose a yongshen.
+    criteria:
+      "true":
+        zh: 说清了关心的是什么事、从哪个角度关心
+        en: It says what the matter is and from which angle the asker cares about it
+      "false":
+        zh: 只说了个大概（如"找工作的事""最近的事"），看不出关心哪一面
+        en: Only a vague gist (like "about finding a job" or "recent things"); the angle is unclear
+    feeds: 第 0 步（只追问会改变判断的信息）
+    on_ambiguous: 追问一句最关心的是哪一面
+    on_false: 先追问来意，问清再装卦
+
+  - id: timescale
+    type: choice
+    instructions:
+      zh: 求测者问的这件事，时间范围大概多长？
+      en: Roughly what time span does the asker's matter cover?
+    options:
+      - label: 当天内
+        zh: 今天之内或几个小时内的事
+        en: Within today or within a few hours
+      - label: 一月内
+        zh: 几天到一个月内的事
+        en: From a few days up to about a month
+      - label: 一年内
+        zh: 一年以内的事
+        en: Within a year
+      - label: 一年以上
+        zh: 一年以上的长期之事
+        en: Longer than a year
+      - label: 没说
+        zh: 没有提到、也没有暗示时间范围
+        en: No time span is mentioned or implied
+    unclear_labels:
+      - 没说
+    feeds: 九步第 9 步应期单位（远以年月、近以日时；07 出空按年运推月、月余推日、日内推时辰）
+    on_ambiguous: 追问时限（"大概想知道多久之内的事？"）
+
+  - id: health_matter
+    type: noul
+    instructions:
+      zh: 所问之事涉及身体健康或疾病（本人或他人）。
+      en: The matter involves physical health or illness (the asker's or someone else's).
+    criteria:
+      "true":
+        zh: 涉及病情、身体状况、治疗、手术、伤灾
+        en: It concerns an illness, physical condition, treatment, surgery or injury
+      "false":
+        zh: 与身体健康无关
+        en: It has nothing to do with physical health
+    feeds: 丙类：五运六气镜（医易盘）与四土警示的资格
+    on_ambiguous: 不追问；按"否"处理，不开医易镜
+
+  - id: involves_decision
+    type: noul
+    instructions:
+      zh: 求测者面临一个需要自己做的现实决定（去留、要不要做、选哪个、何时行动）。
+      en: The asker faces a real decision of their own (stay or leave, whether to do it, which to choose, when to act).
+    criteria:
+      "true":
+        zh: 有一个要由求测者拍板的现实决定
+        en: There is a real-world decision the asker must make
+      "false":
+        zh: 只想知道结果或情况，没有要做的决定
+        en: Only wants to know an outcome or situation; no decision to make
+    feeds: 输出层：是否给对应建议与行动卡（22 二.5、23 五）
+    on_ambiguous: 按"是"处理（给建议，但每条锚回依据）

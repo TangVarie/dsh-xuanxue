@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "title": {
+    "en": "Xuanxue studio for DeepSeek Harness",
+    "zh": "玄学台 · DeepSeek Harness 四门玄学工作台"
+  },
+  "description": {
+    "en": "Bazi, Liuyao, Ziwei and Vedic as one installable DeepSeek Harness plugin: a left-sidebar studio page, an agent preset, and the four interpretation skills plus their practice layer. Add this index once; new versions show up as updates in the Plugins page.",
+    "zh": "把八字、六爻、紫微、吠陀四门做成一个可安装的 DeepSeek Harness 插件：左栏工作台页、智能体预设，以及四门解读技能与实践层。索引地址只需添加一次，之后有新版本会在插件页出现「更新」。"
+  },
+  "plugins": []
+}

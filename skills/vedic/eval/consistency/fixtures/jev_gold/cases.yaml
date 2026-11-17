@@ -1,0 +1,226 @@
+# ════════════════════════════════════════════════════════════════════
+# Jev 闭集抽取 · 金标准例  jg-v0.1
+# ════════════════════════════════════════════════════════════════════
+# 每条是一段"像解读 skill 写出来的"报告片段 + 它明确陈述为事实的 claims（gold）。
+# gold 记的是"报告说了什么"，不是盘的真相——c07、c08 故意写错或写得前后不一，
+# 抽取器应该照实抽（c07）或标待复核（c08），错不错交给 check_consistency.py。
+#   gold           应当写进 claims 的字段（没列的字段一律不该抽）
+#   expect_review  应当标"待复核"、不写进 claims 的字段
+#   traps          最容易被误抽的"陷阱值"，报告里单独统计踩没踩
+# 跑法：python3 jev_claims_eval.py [--engine baseline|jev|both]
+# ════════════════════════════════════════════════════════════════════
+
+gold_version: jg-v0.2
+
+cases:
+
+  - id: c01
+    skill: core
+    note: 标准写法；"落在 12 宫"是宫位，不是星座
+    report: |
+      ## 核心审计
+      本盘 AK 是 Sun（Atmakaraka），决定此生的功课。
+      L10 是 Mars，落在 12 宫，事业带有远方与幕后色彩。
+      Saturn 落 Capricorn，入庙，是全盘最稳的一颗星。
+      D9 上升 Sagittarius，内在追求意义感。
+    gold:
+      ak: Sun
+      d9_lagna: 9
+      house_lords: {"10": Mars}
+      planet_sign: {Saturn: 10}
+      planet_dignity: {Saturn: Own}
+    traps: ["planet_sign.Mars=12"]
+
+  - id: c02
+    skill: core
+    note: AK 与 AmK 在同一句里
+    report: |
+      ## Karaka 团队
+      AmK 是 Saturn、AK 是 Sun，两者一个管执行、一个管方向。
+    gold:
+      ak: Sun
+    traps: ["ak=Saturn"]
+
+  - id: c03
+    skill: career
+    note: 假设句 + 否定句
+    report: |
+      ## Saturn 专项
+      如果 Saturn 入旺，事业会更早起势，可惜这张盘的 Saturn 并不在 Libra。
+      Saturn 在 Capricorn 入庙。
+    gold:
+      planet_sign: {Saturn: 10}
+      planet_dignity: {Saturn: Own}
+    traps: ["planet_dignity.Saturn=Exalted", "planet_sign.Saturn=7"]
+
+  - id: c04
+    skill: love
+    note: D9 里的落座和尊贵度不算本命
+    report: |
+      ## 2.1 D1面具 vs D9灵魂
+      D9 里 Venus 落 Pisces 入旺，婚姻的内在品质很高。
+      本命盘里 Venus 在 Aries。
+    gold:
+      planet_sign: {Venus: 1}
+    traps: ["planet_sign.Venus=12", "planet_dignity.Venus=Exalted"]
+
+  - id: c05
+    skill: career
+    note: 落在宫里 ≠ 宫主
+    report: |
+      ## 事业宫
+      10 宫主 Mars 落在 12 宫，而 10 宫里坐着的是 Saturn。
+    gold:
+      house_lords: {"10": Mars}
+    traps: ["house_lords.10=Saturn"]
+
+  - id: c06
+    skill: core
+    note: 写法多样：第七宫的宫主星 / 4宫主 / 1 宫白羊座
+    report: |
+      ## 宫主速览
+      第七宫的宫主星为 Saturn（L7）。
+      4宫主 Venus 落在 1 宫白羊座。
+    gold:
+      house_lords: {"7": Saturn, "4": Venus}
+      planet_sign: {Venus: 1}
+
+  - id: c07
+    skill: career
+    note: 故意写错（对照源数据 L10 应为 Mars、Saturn 应为入庙）——照实抽，交给检查器抓
+    report: |
+      ## 事业结构
+      L10 是 Saturn，事业靠耐力熬出来。Saturn 落陷，压力大于助力。
+    gold:
+      house_lords: {"10": Saturn}
+      planet_dignity: {Saturn: Debilitated}
+
+  - id: c08
+    skill: career
+    note: 同一份报告里前后说法不一——不该挑一个写进去
+    report: |
+      ## 事业方向
+      L10 是 Mars，决定了你的职业方向。
+      ## 时机
+      10宫主 Saturn 的大运会带来晋升。
+    gold: {}
+    expect_review: ["house_lords.10"]
+
+  - id: c09
+    skill: soul
+    note: 一般规律不是这张盘的事实
+    report: |
+      ## 土星的基本规则
+      一般来说，Saturn 在 Libra 入旺、在 Aries 落陷。你的 Saturn 在 Capricorn。
+    gold:
+      planet_sign: {Saturn: 10}
+    traps: ["planet_sign.Saturn=7", "planet_sign.Saturn=1", "planet_dignity.Saturn=Exalted", "planet_dignity.Saturn=Debilitated"]
+
+  - id: c10
+    skill: core
+    note: 本命上升、D10 上升、D9 上升在同一句
+    report: |
+      ## 分盘上升
+      本命盘上升是 Cancer，D10 上升 Aries，D9 上升则落在 Sagittarius。
+    gold:
+      d9_lagna: 9
+    traps: ["d9_lagna=4", "d9_lagna=1"]
+
+  - id: c11
+    skill: love
+    note: 代词接着说；中性星座算 Other
+    report: |
+      ## 月亮
+      Moon 是 1 宫主。它落在 Aquarius，处于中性星座。
+    gold:
+      house_lords: {"1": Moon}
+      planet_sign: {Moon: 11}
+      planet_dignity: {Moon: Other}
+
+  - id: c12
+    skill: soul
+    note: 中文行星名、中文星座名
+    report: |
+      ## 太阳与水星
+      太阳在金牛座，是你的 AK。水星也在金牛座，二者同宫。
+    gold:
+      ak: Sun
+      planet_sign: {Sun: 2, Mercury: 2}
+
+  - id: c14
+    skill: career
+    note: 只有空话，没有事实；"能量尤其旺"不是入旺
+    report: |
+      ## 事业总评
+      你的事业宫很有力量，行星配置支持你在专业领域深耕，Saturn 的能量尤其旺。
+    gold: {}
+    traps: ["planet_dignity.Saturn=Exalted"]
+
+  - id: c15
+    skill: career
+    note: 「力量很旺」是强弱，不是尊贵度
+    report: |
+      ## 木星
+      Jupiter 力量很旺，Shadbala 高达 130%。Jupiter 在 Gemini。
+    gold:
+      planet_sign: {Jupiter: 3}
+    traps: ["planet_dignity.Jupiter=Exalted"]
+
+  - id: c16
+    skill: soul
+    note: Moolatrikona 不在四档里，算未陈述
+    report: |
+      ## 太阳
+      Sun 在 Leo，处于 Moolatrikona，状态稳定。
+    gold:
+      planet_sign: {Sun: 5}
+    traps: ["planet_dignity.Sun=Own"]
+
+  - id: c17
+    skill: core
+    note: 英文写法；八 karaka 体系里 AK 可以是 Rahu
+    report: |
+      ## Karaka
+      Rahu is the AK in this 8-karaka reading. The 10th lord is Mars.
+    gold:
+      ak: Rahu
+      house_lords: {"10": Mars}
+
+  - id: c18
+    skill: core
+    note: 表格写法（表头要跟着行一起给）
+    report: |
+      ## 宫主表
+      | 宫位 | 宫主 | 落宫 |
+      |---|---|---|
+      | L1 | Moon | 11 |
+      | L10 | Mars | 12 |
+    gold:
+      house_lords: {"1": Moon, "10": Mars}
+    traps: ["planet_sign.Moon=11", "planet_sign.Mars=12"]
+
+  # ── 以下两段仿自真实输出里抽错过的写法（jc-v0.2 起加入）──────────────
+
+  - id: c19
+    skill: core
+    note: 仿真实输出：Neecha Bhanga 句里顺带提到的星不是陷落的那颗
+    report: |
+      ## 太阳
+      Sun 陷落但有双重 Neecha Bhanga 保险（Venus 9宫 Trikona + Mars 5宫 Trikona）。
+    gold:
+      planet_dignity: {Sun: Debilitated}
+    traps: ["planet_dignity.Venus=Debilitated", "planet_dignity.Mars=Debilitated"]
+
+  - id: c20
+    skill: core
+    note: 仿真实输出（校时报告）：表格并列两个候选上升，弃用那一栏的宫主不算；标待复核也可以接受
+    report: |
+      ## 候选上升对比
+      | 维度 | 候选 A: Pi Lagna | 候选 B: Ar Lagna |
+      |---|---|---|
+      | L1 命主 | Jupiter (7宫) | Mars (4宫) |
+      | L8 | Venus | Mars |
+      最终采用候选 A（Pi Lagna）。
+    gold:
+      house_lords: {"1": Jupiter, "8": Venus}
+    traps: ["house_lords.1=Mars", "house_lords.8=Mars"]

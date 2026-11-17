@@ -1,0 +1,120 @@
+# ════════════════════════════════════════════════════════════════════
+# Jev 闭集抽取 · 题库  jc-v0.1
+# ════════════════════════════════════════════════════════════════════
+# 用途：jev_extract_claims.py 用它把某个解读 skill 的输出抽成 skill_claims_<skill>.json。
+# 做法：先用代码把报告里相关的句子捞出来（retrieval），再逐个字段问 Jev 一道闭集选择题。
+#       答案只能落在这里列的选项里（行星 / 星座 / 尊贵度 + 三个特殊选项），编不出别的值。
+# 纪律：
+#   · 抽取器看不到 canonical_facts，也看不到别的 skill 的 claims——它只抽"这份报告说了什么"，
+#     报告说错了就照错的抽，错不错交给 check_consistency.py 判。
+#   · 只抽本命盘（D1）的事实；分盘（D9、D10 …）里的落座、尊贵度、宫主都不算，D9 上升除外。
+#   · 只抽明确陈述为事实的；假设、举例、一般规律、否定句都不算。
+#   · 不许推算：报告只说"落 10 宫"，不能换算成星座。
+# 改题：选项定义、别名、题干一改，bank_version 升一号，并先跑 jev_claims_eval.py。
+# ════════════════════════════════════════════════════════════════════
+
+bank_version: jc-v0.2
+model: jev-1.13.0
+
+# 判定阈值（暂定，跑完金标准例再调）。这是回归门：抽错一个值就会造出假矛盾，所以比六爻那边严。
+decision:
+  min_top: 0.70       # 第一名概率低于它 → 待复核
+  min_margin: 0.30    # 第一名减第二名低于它 → 待复核
+
+# 每道题最多带多少个候选句子进 Jev（报告很长，整篇塞进去会变不准）
+retrieval:
+  max_units: 20
+  max_chars_per_unit: 240
+
+# ── 三个特殊选项（每道题都有）─────────────────────────────────────────
+special:
+  not_stated:
+    label: 未陈述
+    zh: 这些句子没有把它当作本命盘（D1）的事实说出来：只在假设、举例、一般规律、否定句或分盘里提到，或者根本没说
+  conflicting:
+    label: 前后不一
+    zh: 这些句子对同一件事给了两个不同的说法
+  other:
+    label: 其他说法
+    zh: 报告给了一个不在上面选项里的说法
+
+# ── 行星（label 用 schema 里的英文名；aliases 同时用于检索和选项说明）────
+planets:
+  - label: Sun
+    aliases: [Sun, 太阳, Surya, Ravi]
+  - label: Moon
+    aliases: [Moon, 月亮, 太阴, Chandra]
+  - label: Mars
+    aliases: [Mars, 火星, Mangal, Kuja]
+  - label: Mercury
+    aliases: [Mercury, 水星, Budha]
+  - label: Jupiter
+    aliases: [Jupiter, 木星, Guru, Brihaspati]
+  - label: Venus
+    aliases: [Venus, 金星, Shukra]
+  - label: Saturn
+    aliases: [Saturn, 土星, Shani]
+  - label: Rahu
+    aliases: [Rahu, 罗睺, 北交点]
+  - label: Ketu
+    aliases: [Ketu, 计都, 南交点]
+
+# 宫主只可能是七颗古典行星（与 cutil.SIGN_LORD 一致）；AK 取七星 + Rahu（八 karaka 体系）
+lord_planets: [Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn]
+ak_planets: [Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu]
+# 要问落座和尊贵度的行星
+sign_planets: [Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, Ketu]
+dignity_planets: [Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn]
+
+# ── 星座（n 与 schema 的 1..12 对应，1 = 白羊）──────────────────────────
+signs:
+  - {n: 1, label: Aries, aliases: [Aries, 白羊, 牡羊, Mesha]}
+  - {n: 2, label: Taurus, aliases: [Taurus, 金牛, Vrishabha]}
+  - {n: 3, label: Gemini, aliases: [Gemini, 双子, Mithuna]}
+  - {n: 4, label: Cancer, aliases: [Cancer, 巨蟹, Karka, Karkata]}
+  - {n: 5, label: Leo, aliases: [Leo, 狮子, Simha]}
+  - {n: 6, label: Virgo, aliases: [Virgo, 处女, Kanya]}
+  - {n: 7, label: Libra, aliases: [Libra, 天秤, 天平, Tula]}
+  - {n: 8, label: Scorpio, aliases: [Scorpio, 天蝎, Vrishchika, Vrischika]}
+  - {n: 9, label: Sagittarius, aliases: [Sagittarius, 射手, 人马, Dhanu]}
+  - {n: 10, label: Capricorn, aliases: [Capricorn, 摩羯, 山羊, Makara]}
+  - {n: 11, label: Aquarius, aliases: [Aquarius, 水瓶, 宝瓶, Kumbha]}
+  - {n: 12, label: Pisces, aliases: [Pisces, 双鱼, Meena]}
+
+# ── 尊贵度（与 cutil.dignity 的四档一致）────────────────────────────────
+dignity:
+  - label: Exalted
+    zh: 入旺（旺、Exalted、Uccha）
+    aliases: [入旺, Exalted, Exaltation, Uccha]
+  - label: Debilitated
+    zh: 落陷（陷、入弱、Debilitated、Neecha）
+    aliases: [落陷, 入弱, Debilitated, Debilitation, Neecha]
+  - label: Own
+    zh: 入庙（居本宫、本垣、自己的星座、Own sign、Swakshetra）
+    aliases: [入庙, 本宫, 本垣, 自己的星座, Own, Swakshetra]
+  - label: Other
+    zh: 明说是友方、中性或敌方星座（也就是既不旺、不陷、也不入庙）
+    aliases: [友方, 中性, 敌方, 友宫, 敌宫]
+# 只用于检索的尊贵度相关词（不当选项）：这些说法出现时也把句子捞进来，让 Jev 判断是不是四档之一
+dignity_extra_cues: [旺, 陷, 庙, Moolatrikona, 三方宫]
+
+# ── 检索线索 ──────────────────────────────────────────────────────────
+cues:
+  ak: ['(?<![A-Za-z])AK(?![A-Za-z])', 'Atma\s*karaka', 'Atmakaraka', '阿特玛卡拉卡']
+  d9: ['(?<![A-Za-z])D-?9(?![0-9])', 'Navam[sś]h?a', '九分盘', '纳瓦姆萨']
+  lagna: ['上升', 'Lagna', '(?<![A-Za-z])ASC(?![A-Za-z])', 'Ascendant', '命宫']
+  sign_word: ['座']
+  pronoun_start: ['^(它|其|该星|这颗星|It\b|This planet)']
+
+# ── 题干（{placeholder} 由脚本填）───────────────────────────────────────
+questions:
+  ak:
+    zh: 按这些句子，报告说这张盘的 AK（Atmakaraka，灵魂星）是哪颗星？注意 AmK、DK、PK 等其他 karaka 都不是 AK；只算明确陈述为事实的。
+  d9_lagna:
+    zh: 按这些句子，报告说 D9（Navamsa）盘的上升星座是哪个？本命盘（D1）上升、D10 等其他分盘的上升、行星在 D9 的落座都不算；只算明确陈述为事实的。
+  house_lord:
+    zh: 按这些句子，报告把本命盘第 {n} 宫的宫主（L{n}）说成了哪颗星？只算明确陈述为事实的，不要自己推算；"某星落在 {n} 宫"（在宫里）不等于"{n} 宫主是某星"；分盘的宫主不算；报告在比较另一个候选上升（比如校时里的"候选 B"那一栏）或假设换一个上升时说的宫主也不算，只认当前采用的上升。
+  planet_sign:
+    zh: 按这些句子，报告把 {planet}（{planet_zh}）在本命盘（D1）的落座说成了哪个星座？只算明确陈述为事实的；只说落在第几宫的不算（不许换算），分盘（D9、D10 等）里的落座不算，假设、一般规律和否定句也不算；句子里说的是别的星的落座，不能算到 {planet} 头上。
+  planet_dignity:
+    zh: 按这些句子，报告说 {planet}（{planet_zh}）在本命盘（D1）的尊贵度是哪一档？只算明确陈述为事实的；分盘里的尊贵度（如"D9 入旺"）不算；只说了 Moolatrikona、Vargottama、燃烧、逆行、力量强弱等四档以外的状态，算未陈述；句子里是别的星陷落或入旺、{planet} 只是被顺带提到的，不能算到 {planet} 头上。

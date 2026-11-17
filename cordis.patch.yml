@@ -1,0 +1,7 @@
+# 玄学台 bundle 的层入口：这一行让这个 bundle 成为 profile 的一层，
+# 浏览器半（client.js）、智能体预设（presets/xuanxue.patch.yml）随包被发现；
+# Host 半（index.js）顺带把包内的 skills/ 注册成一个技能来源，
+# 所以四门技能随插件走，不依赖任何本机目录。
+- insert:
+    - id: xuanxue-tab
+      name: 'dsh-xuanxue'
