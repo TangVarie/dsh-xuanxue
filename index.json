@@ -8,5 +8,36 @@
     "en": "Bazi, Liuyao, Ziwei and Vedic as one installable DeepSeek Harness plugin: a left-sidebar studio page, an agent preset, and the four interpretation skills plus their practice layer. Add this index once; new versions show up as updates in the Plugins page.",
     "zh": "把八字、六爻、紫微、吠陀四门做成一个可安装的 DeepSeek Harness 插件：左栏工作台页、智能体预设，以及四门解读技能与实践层。索引地址只需添加一次，之后有新版本会在插件页出现「更新」。"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "dsh-xuanxue",
+      "title": {
+        "en": "Metaphysics studio",
+        "zh": "玄学台"
+      },
+      "description": {
+        "en": "Adds a 玄学 (Metaphysics) page to the left sidebar that turns the four bundled skills (Bazi, Liuyao, Ziwei, Vedic v5.3 with its Prashna module) plus the practice-layer skill xuanxue-orchestra into one workflow. Fate reading and divination are two axes: fate reads a natal chart (Bazi, Ziwei, Vedic), divination casts for one question (Liuyao with the user's own toss, or a Vedic prashna chart from the question moment and place, no birth data). Ask states the question only; the agent triages it, picks a minimal sufficient set, runs each system independently, cross-fits them (shared support, single-system support, conflicts with resolution conditions, gaps) and then reports or discusses. A single system can also be pinned with a validated parameter card. The case archive reads xuanxue-cases/index.json and each case.json to show conclusions, evidence, confidence and verification state, the cross-fit block, timing and the next review date, with one-click follow-up and outcome review. Runtime reads xuanxue-skills/health.json to show the calculators' status and start a health check. Sessions start under the Xuanxue agent preset; the skills ship inside the plugin under skills/.",
+        "zh": "在左侧导航新增「玄学」整页工作台，把四个内置技能（八字 bazi-core、六爻 liuyao-core、紫微 ziwei-core、吠陀 vedic v5.3 含 Prashna 卜卦）与配套的实践层技能 xuanxue-orchestra 串成一条工作流。算命与卜卦分两轴：算命走八字/紫微/吠陀本命盘，卜卦走六爻（用户摇卦）或吠陀 Prashna 提问盘（提问时刻＋地点，不需生辰）。①提问台：只陈述问题，你先把问题分诊（命还是卜）、选最少充分集、独立跑各门、做交叉拟合（共同支持/单门支持/冲突与分辨/信息缺口），再给结论或一起讨论；也可指定单一法门并做参数卡校验。②命例档案：读 xuanxue-cases/index.json 与各案 case.json，显示结论、证据、置信与验证状态、交叉拟合、应期与下次检查日，可一键追问或复盘应验。③运行态：读 xuanxue-skills/health.json 展示四门脚本与解释器状态并可一键体检。会话以「玄学」代理预设启动，技能随插件内置在 skills/ 下。"
+      },
+      "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2Ij4KICA8Y2lyY2xlIGN4PSIxOCIgY3k9IjE4IiByPSIxNiIgZmlsbD0iI0VERTdEOSIvPgogIDxwYXRoIGQ9Ik0xOCAyYTE2IDE2IDAgMCAxIDAgMzIgOCA4IDAgMCAwIDAtMTYgOCA4IDAgMCAxIDAtMTZaIiBmaWxsPSIjM0IzQTYzIi8+CiAgPGNpcmNsZSBjeD0iMTgiIGN5PSIxMCIgcj0iMi42IiBmaWxsPSIjRURFN0Q5Ii8+CiAgPGNpcmNsZSBjeD0iMTgiIGN5PSIyNiIgcj0iMi42IiBmaWxsPSIjM0IzQTYzIi8+Cjwvc3ZnPgo=",
+      "author": "唐变量",
+      "repository": {
+        "url": "https://github.com/TangVarie/dsh-xuanxue"
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "publishTimestamp": 1794926523,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/TangVarie/dsh-xuanxue",
+            "commit": "c0c923633aca4fd25d9e5df41b4e30503bee4300"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1 <0.3.0"
+          }
+        }
+      ]
+    }
+  ]
 }
